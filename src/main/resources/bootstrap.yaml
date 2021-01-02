@@ -1,0 +1,14 @@
+spring.cloud.vault:
+  generic:
+    enabled: false
+  enabled: true
+  host: helm-vault
+  port: 8200
+  scheme: https
+  authentication: KUBERNETES
+  kubernetes:
+    role: test
+    service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  ssl:
+    trust-store: vault-truststore.jks
+    trust-store-password: secret

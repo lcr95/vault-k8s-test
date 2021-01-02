@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-vault-test
+  name: spring-vault-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-vault-test
+  template:
+    metadata:
+      labels:
+        app: spring-vault-test
+        app-group: spring-vault-test
+    spec:
+      containers:
+      - image: spring-vault-test:1.0-SNAPSHOT
+        name: spring-vault-test
+        command: ["java"]
+        args: ["-Xms4g","-Xmx4g","-cp", "/app/extra:/app/resources:/app/classes:/app/libs/*:/spring-truststore","com.vault.test.VaultTestApplication"]
+        volumeMounts:
+        - name: conf
+          mountPath: /app/resources
+        - name: spring-truststore
+          mountPath: /spring-truststore
+      volumes:
+        - name: conf
+          configMap:
+            name: spring-vault-test-configmap
+            items:
+              - key: bootstrap.yml
+                path: bootstrap.yml
+        - name: spring-truststore
+          secret:
+            secretName: spring-truststore
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: spring-vault-test-configmap
+data:
+  logback.xml: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>
+                    %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+                </Pattern>
+            </layout>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </configuration>
+  bootstrap.yml: |-
+    spring.cloud.vault:
+      generic:
+          enabled: false
+      enabled: true
+      host: helm-vault
+      port: 8200
+      scheme: https
+      authentication: KUBERNETES
+      kubernetes:
+        role: test
+        service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      ssl:
+        trust-store: vault-truststore.jks
+        trust-store-password: secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spring-vault-test-service
+  name: spring-vault-test-service
+spec:
+  ports:
+    - port: 8090
+      protocol: TCP
+      targetPort: 8090
+      name: service
+  selector:
+    app: spring-vault-test-service
+  type: ClusterIP

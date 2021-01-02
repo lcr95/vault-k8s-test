@@ -1,0 +1,20 @@
+
+{
+  "hosts": [
+    "cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "MY",
+      "L": "KualaLumpur",
+      "O": "Example",
+      "OU": "CA",
+      "ST": "Example"
+    }
+  ]
+}
+

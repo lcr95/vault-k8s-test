@@ -1,0 +1,18 @@
+
+{
+  "CN": "helm-vault",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "MY",
+      "L": "KualaLumpur",
+      "O": "Kubernetes",
+      "OU": "Vault",
+      "ST": ""
+    }
+  ]
+}
+
